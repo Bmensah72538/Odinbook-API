@@ -12,9 +12,12 @@ const app = express();
 const port = 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const allowedOrigin = process.env.corsAllowedOrigin;
 // cors
-app.use(cors());
+app.use(cors({
+    origin: allowedOrigin,  // Adjust to your frontend domain
+    methods: ['GET', 'POST', 'PUT'],           // Add allowed methods
+  }));
 
 // Body parser
 app.use(express.json());
