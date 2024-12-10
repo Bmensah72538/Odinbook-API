@@ -29,6 +29,35 @@ router.post('/login', (req, res) => {
     })
     
 })
+router.post('/signup', (req, res) => {
+    //auth user
+    const username = req.body.username;
+    if(username.length > 20) {
+        res.send('Username length cannot exceed 20 characters');
+        return;
+    }
+    const password = req.body.password;
+    if(password.length > 20) {
+        res.send('Password length cannot exceed 20 characters');
+        return;
+    }
+    User.findOne({username: username})
+        .then((user) => {
+            if(user) {
+                res.send('User already exists.');
+                return;
+            }
+            //then send JWT
+            const access = utils.issueAccess(user);
+            const refresh = utils.issueRefresh(user);
+            res.json({
+                access: access,
+                refresh: refresh,
+                userId: user._id
+            });
+        })
+    
+})
 
 router.get('/refresh', (req, res) => {
     if (req.headers.refresh) {
@@ -55,12 +84,6 @@ router.get('/refresh', (req, res) => {
         return res.status(406).json({ message: 'Unauthorized' });
     }
 })
-// router.post('/messages', utils.authJWT, async(req, res) => {
-//     const message = req.body.message;
-//     const userId = req.user.sub;
-//     const chatroomid = req.body.chatroomid;
-
-// })
 
 router.post('/messages', async(req, res) => {
     const user = await User.findById('658f469b4736ad5b996dc5b8')
@@ -78,18 +101,55 @@ router.post('/messages', async(req, res) => {
     
 
 })
-
-router.get('/messages', utils.authJWT, async(req, res) => {
-    const userId = req.user.sub;
-    const user = await User.findById(userId);
-    const chatrooms = await Chatrooms.find({ participants: userId })
-    
-    
-    res.json({
-        user: user,
-        chatrooms: chatrooms
+// GET /api/chatrooms: Retrieves all chatrooms the authenticated user is participating in.
+// GET /api/chatrooms/:chatroomId/messages: Retrieves all messages for a specific chatroom.
+// POST /api/chatrooms/:chatroomId/messages: Sends a new message to a specific chatroom.
+router.get('/chatrooms', utils.authJWT, async(req, res) => {
+    const userId = req.headers.userId;
+    if(!userId) {
+        res.send('User ID is not found.');
+    } 
+    Chatrooms.find({ participants: userId })
+        .then(chatrooms => {
+            res.json({
+                chatrooms: chatrooms
+            })
+        })
+        .catch(error => {
+            res.send('Failed to return chatrooms')
+        })
+})
+router.get('/chatrooms/:chatroomId/messages', utils.authJWT, async(req, res) => {
+    const chatroomId = req.params.chatroomId;
+    const userId = req.headers.userId;
+    if(!userId) {
+        res.send('User ID is not found.');
+    } 
+    Chatrooms.findById(chatroomId)
+        .then(chatrooms => {
+            res.json({
+                messages: chatroom.messages
+            })
+        })
+        .catch(error => {
+            res.send(`Error finding messages in chatroom: ${chatroomId}`);
+        })
+})
+router.post('/chatrooms:chatroomId/messages', utils.authJWT, async(req, res) => {
+    const chatroomId = req.params.chatroomId;
+    const userId = req.headers.userId;
+    if(!userId) {
+        res.send('User ID is not found.');
+    } 
+    Messages.create({
+        chatroomId: chatroomId,
+        messageText: req.body.messageText,
+        author: userId,
+        date: {type: Date, default: Date.now}
     })
-
+    .catch(error => {
+        res.send('Error saving message');
+    })
 })
 
 router.get('/friends', utils.authJWT, async(req, res) => {
