@@ -5,12 +5,11 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import cors from 'cors';
 import http from 'http';
-import { Server as SocketIOServer } from 'socket.io';
 
 
 // Import Routes 
 import indexRouter from './routes/index.js'
-import apiRouter from './routes/api.js'
+import apiRouter from './routes/api/index.js'
 
 // Init App
 const app = express();
@@ -43,37 +42,6 @@ mongoose.connect(process.env.dbURI)
 
 // Create HTTP Server
 const server = http.createServer(app);
-
-// WebSocket Server
-const io = new SocketIOServer(server, {
-    cors: {
-        origin: allowedOrigin,
-        methods: ['GET', 'POST'],
-    }
-});
-
-// Handle WebSocket Connections
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
-    // Join a chatroom
-    socket.on('joinRoom', (room) => {
-        socket.join(room);
-        console.log(`${socket.id} joined room ${room}`);
-    });
-
-    // Handle sending messages
-    socket.on('sendMessage', (data) => {
-        console.log('Message received:', data);
-        io.to(data.room).emit('newMessage', data); // Broadcast message to the room
-    });
-
-    // Handle disconnections
-    socket.on('disconnect', () => {
-        console.log('A user disconnected:', socket.id);
-    });
-});
-
 
 
 // Begin Listening
