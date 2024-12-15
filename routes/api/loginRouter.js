@@ -3,7 +3,7 @@ import utils from '../../lib/passwordUtils.js';
 
 const router = express.Router();
 
-router.post('/login', (req, res) => {
+router.post('/', (req, res) => {
     //auth user
     const username = req.body.username;
     const password = req.body.password;

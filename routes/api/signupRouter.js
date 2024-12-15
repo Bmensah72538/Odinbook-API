@@ -8,11 +8,12 @@ import signupValidator from '../../middleware/signupValidator.js';
 
 const router = express.Router();
 
-// reCAPTCHA Secret Key 
-const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET; 
+router.get('/', (req, res)=>{
+    res.send('hi there');
+})
 
 router.post(
-    '/signup',
+    '/',
     signupValidator,  
     async (req, res) => {
         // Step 1: Validate incoming fields
@@ -21,42 +22,20 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { username, password, email, captchaToken } = req.body;
+        const { username, password, email } = req.body;
 
         // Step 2: Ensure all required fields are provided
-        if (!username || !password || !email || !captchaToken) {
+        if (!username || !password || !email ) {
             return res.status(400).json({ error: 'All fields are required.' });
         }
 
-        // Step 3: Verify reCAPTCHA token with Google's API
-        try {
-            const captchaResponse = await axios.post(
-                'https://www.google.com/recaptcha/api/siteverify',
-                null,
-                {
-                    params: {
-                        secret: RECAPTCHA_SECRET,  
-                        response: captchaToken,       
-                    },
-                }
-            );
-
-            // Check if reCAPTCHA verification was successful
-            if (!captchaResponse?.data?.success) {
-                return res.status(400).json({ error: 'reCAPTCHA validation failed.' });
-            }
-        } catch (error) {
-            console.error('Error verifying reCAPTCHA:', error);
-            return res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
-        }
-
-        // Step 4: Check if user already exists
+        // Step 3: Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ error: 'Signup failed. Username already taken.' });
         }
 
-        // Step 5: Create new user (store user in DB)
+        // Step 4: Create new user (store user in DB)
         let newUser;
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -71,11 +50,11 @@ router.post(
             return res.status(500).json({ error: 'Failed to create user.' });
         }
 
-        // Step 6: Issue JWT tokens
+        // Step 5: Issue JWT tokens
         const access = utils.issueAccess(newUser);
         const refresh = utils.issueRefresh(newUser);
 
-        // Step 7: Return success response with tokens and user ID
+        // Step 6: Return success response with tokens and user ID
         res.json({
             access,
             refresh,

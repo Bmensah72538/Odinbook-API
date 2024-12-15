@@ -1,3 +1,4 @@
+// routes/api/index.js
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -15,11 +16,15 @@ const loadRoutes = async () => {
       const route = await import(`./${file}`);
       const routePath = `/${file.replace('Router.js', '')}`; // Derive route path from file name
       router.use(routePath, route.default);
+      console.log(`Loaded route: ${routePath}`)
     });
   
     await Promise.all(imports); // Wait for all imports to complete
-  };
-  
-  await loadRoutes(); // Ensure routes are loaded before exporting
-  
-  export default router;
+};
+
+// Ensure routes are loaded before exporting
+loadRoutes().then(() => {
+    console.log('Routes loaded successfully');
+});
+
+export default router;

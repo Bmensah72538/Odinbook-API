@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 // GET /api/chatrooms: Retrieves all chatrooms the authenticated user is participating in.
-router.get('/chatrooms', utils.authJWT, async(req, res) => {
+router.get('/', utils.authJWT, async(req, res) => {
     const userId = req.headers.userId;
     if(!userId) {
         res.send('User ID is not found.');
@@ -21,7 +21,7 @@ router.get('/chatrooms', utils.authJWT, async(req, res) => {
 })
 
 // GET /api/chatrooms/:chatroomId/messages: Retrieves all messages for a specific chatroom.
-router.get('/chatrooms/:chatroomId/messages', utils.authJWT, async(req, res) => {
+router.get('/:chatroomId/messages', utils.authJWT, async(req, res) => {
     const chatroomId = req.params.chatroomId;
     const userId = req.headers.userId;
     if(!userId) {
@@ -39,7 +39,7 @@ router.get('/chatrooms/:chatroomId/messages', utils.authJWT, async(req, res) => 
 })
 
 // POST /api/chatrooms/:chatroomId/messages: Sends a new message to a specific chatroom.
-router.post('/chatrooms:chatroomId/messages', utils.authJWT, async(req, res) => {
+router.post('/:chatroomId/messages', utils.authJWT, async(req, res) => {
     const chatroomId = req.params.chatroomId;
     const userId = req.headers.userId;
     if(!userId) {

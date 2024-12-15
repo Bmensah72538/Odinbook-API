@@ -10,8 +10,6 @@ const signupValidator = [
     body('email')
         .isEmail().withMessage('Invalid email format.')
         .notEmpty().withMessage('Email is required.'),
-    body('captchaToken')
-        .notEmpty().withMessage('reCAPTCHA token is required.')
 ];
 
 export default signupValidator;
