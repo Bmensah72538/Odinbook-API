@@ -1,4 +1,5 @@
 import express from 'express'
+import utils from '../../lib/passwordUtils';
 
 const router = express.Router();
 

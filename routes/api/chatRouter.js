@@ -1,11 +1,9 @@
-import express from 'express'
-
+import express from 'express';
+import utils from '../../lib/passwordUtils';
 const router = express.Router();
 
 
 // GET /api/chatrooms: Retrieves all chatrooms the authenticated user is participating in.
-// GET /api/chatrooms/:chatroomId/messages: Retrieves all messages for a specific chatroom.
-// POST /api/chatrooms/:chatroomId/messages: Sends a new message to a specific chatroom.
 router.get('/chatrooms', utils.authJWT, async(req, res) => {
     const userId = req.headers.userId;
     if(!userId) {
@@ -21,6 +19,8 @@ router.get('/chatrooms', utils.authJWT, async(req, res) => {
             res.send('Failed to return chatrooms')
         })
 })
+
+// GET /api/chatrooms/:chatroomId/messages: Retrieves all messages for a specific chatroom.
 router.get('/chatrooms/:chatroomId/messages', utils.authJWT, async(req, res) => {
     const chatroomId = req.params.chatroomId;
     const userId = req.headers.userId;
@@ -37,6 +37,8 @@ router.get('/chatrooms/:chatroomId/messages', utils.authJWT, async(req, res) => 
             res.send(`Error finding messages in chatroom: ${chatroomId}`);
         })
 })
+
+// POST /api/chatrooms/:chatroomId/messages: Sends a new message to a specific chatroom.
 router.post('/chatrooms:chatroomId/messages', utils.authJWT, async(req, res) => {
     const chatroomId = req.params.chatroomId;
     const userId = req.headers.userId;
