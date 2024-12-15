@@ -6,8 +6,8 @@ const userSchema = new Schema({
     username: { type: String, required: true, index: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
-    isMember: { type: Boolean, required: true },
-    isAdmin: { type: Boolean, required: true },
+    isMember: { type: Boolean, default: false, required: true },
+    isAdmin: { type: Boolean, default: false, required: true },
     friends: { type: mongoose.Types.ObjectId, ref: 'Friends'}
 })
 
