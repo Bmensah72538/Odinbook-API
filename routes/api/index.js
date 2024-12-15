@@ -9,11 +9,11 @@ const __dirname = path.dirname(__filename);
 
 // Dynamically load all route files in the current directory
 const loadRoutes = async () => {
-    const files = fs.readdirSync(__dirname).filter(file => file.endsWith('Routes.js'));
+    const files = fs.readdirSync(__dirname).filter(file => file.endsWith('Router.js'));
   
     const imports = files.map(async (file) => {
       const route = await import(`./${file}`);
-      const routePath = `/${file.replace('Routes.js', '')}`; // Derive route path from file name
+      const routePath = `/${file.replace('Router.js', '')}`; // Derive route path from file name
       router.use(routePath, route.default);
     });
   
