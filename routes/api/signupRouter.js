@@ -1,10 +1,10 @@
 import express from 'express';
-import utils from '../../lib/passwordUtils';
+import utils from '../../lib/passwordUtils.js';
 import bcrypt from 'bcrypt';
 import axios from 'axios';
-import User from '../../models/users';  
+import User from '../../models/users.js';  
 import { validationResult } from 'express-validator';
-import signupValidator from '../../middleware/signupValidator';  
+import signupValidator from '../../middleware/signupValidator.js';  
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import utils from '../../lib/passwordUtils';
+import utils from '../../lib/passwordUtils.js';
 const router = express.Router();
 
 
