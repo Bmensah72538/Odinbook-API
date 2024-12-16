@@ -8,7 +8,8 @@ const userSchema = new Schema({
     email: { type: String, required: true },
     isMember: { type: Boolean, default: false, required: true },
     isAdmin: { type: Boolean, default: false, required: true },
-    friends: { type: mongoose.Types.ObjectId, ref: 'Friends'}
+    friends: { type: mongoose.Types.ObjectId, ref: 'Friends'},
+    refreshToken: { type: [String], default:[] },
 })
 
 const User = mongoose.model('users', userSchema )
