@@ -9,7 +9,7 @@ const userSchema = new Schema({
     isMember: { type: Boolean, default: false, required: true },
     isAdmin: { type: Boolean, default: false, required: true },
     friends: { type: mongoose.Types.ObjectId, ref: 'Friends'},
-    refreshToken: { type: [String], default:[] },
+    refreshTokens: { type: [String], default:[] },
 })
 
 const User = mongoose.model('users', userSchema )

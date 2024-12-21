@@ -1,23 +1,24 @@
 import express from 'express';
 import utils from '../../lib/passwordUtils.js';
+import Chatrooms from '../../models/chatrooms.js';
+
 const router = express.Router();
 
 
 // GET /api/chatrooms: Retrieves all chatrooms the authenticated user is participating in.
 router.get('/', utils.authJWT, async(req, res) => {
-    const userId = req.headers.userId;
+    const userId = req.user;
     if(!userId) {
-        res.send('User ID is not found.');
+        return res.json({error:'User ID is not found in request.'});
     } 
-    Chatrooms.find({ participants: userId })
-        .then(chatrooms => {
-            res.json({
-                chatrooms: chatrooms
-            })
-        })
-        .catch(error => {
-            res.send('Failed to return chatrooms')
-        })
+    try {
+        const chatrooms = await Chatrooms.find({ participants: userId });
+        console.log(chatrooms);
+        res.json({chatrooms});
+
+    } catch (error) {
+        res.json({error:'Failed to return chatrooms'});
+    }
 })
 
 // GET /api/chatrooms/:chatroomId/messages: Retrieves all messages for a specific chatroom.

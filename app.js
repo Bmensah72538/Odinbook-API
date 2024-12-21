@@ -45,7 +45,7 @@ const server = http.createServer(app);
 
 
 // Begin Listening
-server.listen(port, (err) => {
+server.listen(port, '0.0.0.0', (err) => {
     if (err) {
         console.error(`Error starting server: ${err}`);
     } else {

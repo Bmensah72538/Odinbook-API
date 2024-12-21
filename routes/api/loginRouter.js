@@ -1,8 +1,12 @@
 import express from 'express'
 import utils from '../../lib/passwordUtils.js';
+import User from '../../models/users.js';
 
 const router = express.Router();
 
+router.get('/', (req, res)=>{
+    res.send('There is nothing to find here.')
+});
 router.post('/', async (req, res) => {
     //auth user
     const { username, password } = req.body;

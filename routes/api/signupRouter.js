@@ -50,8 +50,8 @@ router.post(
         }
 
         // Step 5: Issue JWT tokens
-        const access = utils.issueAccess(newUser);
-        const refresh = utils.issueRefresh(newUser);
+        const access = await utils.issueAccess(newUser);
+        const refresh = await utils.issueRefresh(newUser);
 
         // Step 6: Return success response with tokens and user ID
         res.json({
