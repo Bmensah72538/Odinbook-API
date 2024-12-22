@@ -13,7 +13,7 @@ router.get('/', utils.authJWT, async(req, res) => {
     } 
     try {
         const chatrooms = await Chatrooms.find({ participants: userId });
-        console.log(chatrooms);
+        // console.log(chatrooms);
         res.json({chatrooms});
 
     } catch (error) {
@@ -24,19 +24,19 @@ router.get('/', utils.authJWT, async(req, res) => {
 // GET /api/chatrooms/:chatroomId/messages: Retrieves all messages for a specific chatroom.
 router.get('/:chatroomId/messages', utils.authJWT, async(req, res) => {
     const chatroomId = req.params.chatroomId;
-    const userId = req.headers.userId;
+    const userId = req.user;
     if(!userId) {
-        res.send('User ID is not found.');
+        res.json({ error: 'User ID is not found.'});
+        return;
     } 
-    Chatrooms.findById(chatroomId)
-        .then(chatrooms => {
-            res.json({
-                messages: chatroom.messages
-            })
-        })
-        .catch(error => {
-            res.send(`Error finding messages in chatroom: ${chatroomId}`);
-        })
+    try {
+        await Chatrooms.findById(chatroomId);
+        res.json({
+            messages: chatroom.messages,
+        });
+    } catch (error) {
+        res.json({ error: `Error finding messages in chatroom: ${chatroomId}` });
+    }
 })
 
 // POST /api/chatrooms/:chatroomId/messages: Sends a new message to a specific chatroom.

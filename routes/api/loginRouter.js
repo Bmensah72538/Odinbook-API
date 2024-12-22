@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         res.json({
             access: access,
             refresh: refresh,
-            userId: user._id
+            _id: user._id
         });
     } catch (error) {
         console.log(error);

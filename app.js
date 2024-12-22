@@ -11,6 +11,9 @@ import http from 'http';
 import indexRouter from './routes/index.js'
 import apiRouter from './routes/api/index.js'
 
+// Import Socket.io
+import { initSocket } from './sockets/index.js'
+
 // Init App
 const app = express();
 const port = process.env.PORT || 8080;
@@ -31,18 +34,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
 
-// MongoDB Connection
-mongoose.connect(process.env.dbURI)
-    .then(() => {
-        console.log('Connected to mongo')
-    })
-    .catch(err =>{
-        console.log('MongoDB Connection Error:', err)
-    });
+// Initialize MongoDB Connection
+try {
+    await mongoose.connect(process.env.dbURI)
+    console.log('Connected to MongoDB');
+} catch (error) {
+    console.log('Error connecting to MongoDB');
+}
 
+    
 // Create HTTP Server
 const server = http.createServer(app);
 
+// Initialize Socket.io
+initSocket(server);
 
 // Begin Listening
 server.listen(port, '0.0.0.0', (err) => {
