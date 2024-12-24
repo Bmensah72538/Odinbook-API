@@ -90,6 +90,7 @@ export const initSocket = (server) => {
                 console.log('Message received:', data);
                 // Validate data
                 if (!data.chatroomId || !data.messageText || !data.userId) {
+                    console.log('Invalid message.')
                     return socket.emit('error', { error: 'Invalid message payload.' });
                 }
                 const hasAccess = await verifyAccess(data);
@@ -113,6 +114,7 @@ export const initSocket = (server) => {
                 try {
                     await newMessage.save()
                     io.to(data.chatroomId).emit('newMessage', sanitizedMessage); // Broadcast message to the room
+                    console.log('Message saved to DB');
                 } catch (err) {
                     console.log(`Unable to save message to chatroom ID:${data.chatroomId}`, err);
                     socket.emit('error', { error: 'Failed to send message. Please try again.' });

@@ -26,9 +26,10 @@ router.post('/', async (req, res) => {
         //then send JWT
         const access = await utils.issueAccess(user);
         const refresh = await utils.issueRefresh(user);
+        console.log('User logged in:', user.username);
         res.json({
-            access: access,
-            refresh: refresh,
+            accessToken: access,
+            refreshToken: refresh,
             _id: user._id
         });
     } catch (error) {

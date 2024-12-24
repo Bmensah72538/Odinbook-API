@@ -1,6 +1,7 @@
 import express from 'express';
 import utils from '../../lib/passwordUtils.js';
 import Chatrooms from '../../models/chatrooms.js';
+import Messages from '../../models/messages.js';
 
 const router = express.Router();
 
@@ -30,9 +31,11 @@ router.get('/:chatroomId/messages', utils.authJWT, async(req, res) => {
         return;
     } 
     try {
-        await Chatrooms.findById(chatroomId);
+        console.log(`Attempting to find messages in chatroom: ${chatroomId}`);
+        const messages = await Messages.find({ chatroomId: chatroomId });
+        
         res.json({
-            messages: chatroom.messages,
+            messages: messages,
         });
     } catch (error) {
         res.json({ error: `Error finding messages in chatroom: ${chatroomId}` });
