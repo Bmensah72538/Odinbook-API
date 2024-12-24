@@ -12,6 +12,6 @@ const userSchema = new Schema({
     refreshTokens: { type: [String], default:[] },
 })
 
-const User = mongoose.model('users', userSchema )
+const User = mongoose.model('Users', userSchema )
 
 export default User;
