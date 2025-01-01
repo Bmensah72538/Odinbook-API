@@ -30,7 +30,8 @@ router.post('/', async (req, res) => {
         res.json({
             accessToken: access,
             refreshToken: refresh,
-            _id: user._id
+            _id: user._id,
+            username: user.username
         });
     } catch (error) {
         console.log(error);

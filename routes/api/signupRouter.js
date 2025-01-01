@@ -18,19 +18,25 @@ router.post(
         // Step 1: Validate incoming fields
         const errors = validationResult(req); 
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            console.log(errors);
+            const errorArray = errors.array().map((error) => { 
+                return error.msg;
+            });
+            return res.status(200).json({ errors: errorArray });
         }
 
         const { username, password, email } = req.body;
 
         // Step 2: Ensure all required fields are provided
         if (!username || !password || !email ) {
+            console.log('All fields are required.');
             return res.status(400).json({ error: 'All fields are required.' });
         }
 
         // Step 3: Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
+            console.log('Signup failed. Username already taken.');
             return res.status(400).json({ error: 'Signup failed. Username already taken.' });
         }
 
@@ -54,6 +60,9 @@ router.post(
         const refresh = await utils.issueRefresh(newUser);
 
         // Step 6: Return success response with tokens and user ID
+        console.log('User signed up:', newUser.username, newUser._id);
+        console.log('Access Token:', access);
+        console.log('Refresh Token:', refresh);
         res.json({
             access,
             refresh,

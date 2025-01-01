@@ -5,7 +5,15 @@ const router = express.Router();
 
 router.get('/', utils.authJWT, async(req, res) => {
     console.log(`User ${req.user} is authenticated}`);
-    res.json({_id: req.user});
+    try {
+        const user = await User.findById(req.user);
+        res.json({
+            _id: req.user,
+            username: user.username
+        });
+    } catch (error) {
+        console.log(`Error finding user ${req.user}`);    
+    }
 })
 
 router.get('/:userId', utils.authJWT, async(req, res) => {
@@ -18,7 +26,7 @@ router.get('/:userId', utils.authJWT, async(req, res) => {
         res.json({error: `Unable to access user ${userId}`});
         return;
     }
-    console.log(user);
+    console.log('User accessed:', user.username, user._id);
     res.json({
         username: user.username,
     })

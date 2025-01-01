@@ -4,6 +4,7 @@ import 'dotenv/config';
 import Chatrooms from '../models/chatrooms.js';
 import Messages from '../models/messages.js';
 import validator from 'validator';
+import User from '../models/users.js';
 
 // Cors Origin
 const allowedOrigin = process.env.corsAllowedOrigin;
@@ -100,6 +101,8 @@ export const initSocket = (server) => {
                     socket.emit('error', { error: `Unauthorized access to chatroom ID:${data.chatroomId}` });
                     return;
                 }
+
+                const user = await User.findById(data.userId)
         
                 // Create Sanitized Message
                 const sanitizedMessage = {
@@ -109,16 +112,21 @@ export const initSocket = (server) => {
                     timestamp: new Date(),
                 }
                 const newMessage = new Messages(sanitizedMessage);
+                const toBeEmitted = {
+                    ...sanitizedMessage,
+                    authorUsername: user.username,
+                }
         
                 // Save message
                 try {
                     await newMessage.save()
-                    io.to(data.chatroomId).emit('newMessage', sanitizedMessage); // Broadcast message to the room
-                    console.log('Message saved to DB');
+                    socket.broadcast.to(data.chatroomId).emit('newMessage', toBeEmitted);
+                    console.log('Message saved to DB and broadcasted:', sanitizedMessage);
                 } catch (err) {
                     console.log(`Unable to save message to chatroom ID:${data.chatroomId}`, err);
                     socket.emit('error', { error: 'Failed to send message. Please try again.' });
                 }
+                
             });
         
             // Handle disconnections
