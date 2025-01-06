@@ -4,7 +4,7 @@ import User from '../../models/users.js';
 const router = express.Router();
 
 router.get('/', utils.authJWT, async(req, res) => {
-    console.log(`User ${req.user} is authenticated}`);
+    console.log(`User ${req.user} is authenticated`);
     try {
         const user = await User.findById(req.user);
         res.json({

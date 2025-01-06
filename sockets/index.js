@@ -112,16 +112,13 @@ export const initSocket = (server) => {
                     timestamp: new Date(),
                 }
                 const newMessage = new Messages(sanitizedMessage);
-                const toBeEmitted = {
-                    ...sanitizedMessage,
-                    authorUsername: user.username,
-                }
+                const toBeEmitted = await newMessage.populate('author', 'username');
         
                 // Save message
                 try {
                     await newMessage.save()
-                    socket.broadcast.to(data.chatroomId).emit('newMessage', toBeEmitted);
-                    console.log('Message saved to DB and broadcasted:', sanitizedMessage);
+                    io.to(data.chatroomId).emit('newMessage', toBeEmitted);
+                    console.log('Message saved to DB and broadcasted:', toBeEmitted);
                 } catch (err) {
                     console.log(`Unable to save message to chatroom ID:${data.chatroomId}`, err);
                     socket.emit('error', { error: 'Failed to send message. Please try again.' });

@@ -8,20 +8,39 @@ const router = express.Router();
 
 
 // GET /api/chat: Retrieves all chatrooms the authenticated user is participating in.
-router.get('/', utils.authJWT, async(req, res) => {
+router.get('/', utils.authJWT, async (req, res) => {
     const userId = req.user;
-    if(!userId) {
-        return res.json({error:'User ID is not found in request.'});
-    } 
-    try {
-        const chatrooms = await Chatrooms.find({ participants: userId });
-        // console.log(chatrooms);
-        res.json({chatrooms});
-
-    } catch (error) {
-        res.json({error:'Failed to return chatrooms'});
+    if (!userId) {
+        return res.json({ error: 'User ID is not found in request.' });
     }
-})
+
+    try {
+        // Find all chatrooms for the user
+        const chatrooms = await Chatrooms.find({ participants: userId }).lean();
+
+        // Fetch messages and populate `authorUsername` virtual field
+        const chatroomsWithMessages = await Promise.all(
+            chatrooms.map(async (chatroom) => {
+                const messages = await Messages.find({ chatroomId: chatroom._id })
+                    .populate('author', 'username') 
+                    .lean();
+
+                return {
+                    ...chatroom,
+                    messages,
+                };
+            })
+        );
+
+        res.json({ chatrooms: chatroomsWithMessages });
+    } catch (error) {
+        console.error('Error fetching chatrooms:', error);
+        res.json({
+            error: 'Failed to return chatrooms',
+            details: error.message,
+        });
+    }
+});
 
 // GET /api/chat/:chatroomId/messages: Retrieves all messages for a specific chatroom.
 router.get('/:chatroomId/messages', utils.authJWT, async(req, res) => {
