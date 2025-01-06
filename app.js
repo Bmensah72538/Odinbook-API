@@ -26,6 +26,7 @@ app.use(cors({
     origin: allowedOrigin,  // Adjust to your frontend domain
     methods: ['GET', 'POST', 'PUT'],           // Add allowed methods
   }));
+app.options('*', cors());  // Ensure CORS is enabled for all routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
