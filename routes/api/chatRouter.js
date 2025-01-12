@@ -106,29 +106,51 @@ router.post('/', utils.authJWT, async(req, res) => {
     }
 
     // Find user IDs for participants
-    if(participants) {
+    if (participants) {
         try {
-            const participantUserIds = await Promise.all(participants.map(async (participant) => {
-                try {
-                    const user = await User.find({ username: participant})
-                    const userId = user._id;
-                    return userId;
-                } catch (error) {
-                    res.json({ error: 'Failed to find user ID for participant.'});
+            // Fetch all participants in a single query
+            const users = await User.find({ username: { $in: participants } });
+            if (users.length !== participants.length) {
+                const missingUsers = participants.filter(
+                    (participant) => {
+                        return !users.some(user => user.username === participant);
+                    }
+                );
+                throw new Error(`Some participants were not found: ${missingUsers.join(', ')}`);
+            }
+    
+            // Create participant objects
+            const participantObjects = users.map((user) => {
+                const output = {
+                    _id: user._id,
                 }
-            }));
-            console.log(`Creating chatroom with participants: ${participantUserIds}`);
-            console.log(participantUserIds);
+                return output;
+            });
+    
+            console.log(`Creating chatroom with participants: ${participantObjects}`);
+    
+            // Create and save chatroom
             const newChatroom = new Chatrooms({
                 name: chatroomName,
-                participants: [userId, ...participantUserIds],
+                participants: [
+                    {
+                    _id: userId, 
+                    isAdmin: true
+                    }, 
+                    ...participantObjects
+                ],
             });
             await newChatroom.save();
-            res.json({ chatroom: newChatroom });            
+    
+            // Respond with the new chatroom
+            res.json({ chatroom: newChatroom });
         } catch (error) {
-            res.json({ error: 'Failed to create chatroom.', actualError: error});
+            console.error('Error creating chatroom:', error);
+            res.json({ error: 'Failed to create chatroom.', details: error.message });
         }
-    }
+    } else {
+        res.json({ error: 'Participants are required.' });
+    }    
 })
 
 export default router;
