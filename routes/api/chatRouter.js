@@ -153,4 +153,60 @@ router.post('/', utils.authJWT, async(req, res) => {
     }    
 })
 
+// Deletes one participant
+router.delete('/chatrooms/:chatroomId/participants/:userId', async (req, res) => {
+    const { chatroomId, userId } = req.params;
+    const currentUserId = req.user._id; // Assume you get this from auth middleware
+
+    try {
+        const chatroom = await Chatrooms.findById(chatroomId);
+
+        // Check if the current user is an admin
+        const currentUser = chatroom.participants.find(
+            (participant) => participant.userId.toString() === currentUserId.toString()
+        );
+
+        if (!currentUser || !currentUser.isAdmin) {
+            return res.status(403).json({ error: 'Only admins can remove participants.' });
+        }
+
+        // Remove the user from participants
+        chatroom.participants = chatroom.participants.filter(
+            (participant) => participant.userId.toString() !== userId
+        );
+
+        await chatroom.save();
+
+        res.json({ message: 'Participant removed successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to remove participant.' });
+    }
+});
+// Deletes entire chatroom
+router.delete('/chatrooms/:chatroomId', async (req, res) => {
+    const { chatroomId } = req.params;
+    const currentUserId = req.user._id;
+
+    try {
+        const chatroom = await Chatrooms.findById(chatroomId);
+
+        // Check if the current user is an admin
+        const currentUser = chatroom.participants.find(
+            (participant) => participant.userId.toString() === currentUserId.toString()
+        );
+
+        if (!currentUser || !currentUser.isAdmin) {
+            return res.status(403).json({ error: 'Only admins can delete chatrooms.' });
+        }
+
+        await Chatrooms.findByIdAndDelete(chatroomId);
+
+        res.json({ message: 'Chatroom deleted successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete chatroom.' });
+    }
+});
+
+
+
 export default router;
