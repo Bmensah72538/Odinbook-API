@@ -30,8 +30,12 @@ router.get('/:userId', utils.authJWT, async(req, res) => {
     res.json({
         username: user.username,
     })
-    
-
+})
+router.get('/search', utils.authJWT, async(req, res) => {
+    const { qUsername } = req.query
+    console.log();
+    res.json({qUsername})
+    return;
 })
 
 export default router;
