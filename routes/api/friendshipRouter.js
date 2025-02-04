@@ -55,3 +55,5 @@ router.post('/', utils.authJWT, async (req, res) => {
     }
     return res.json({ message: 'Friendship created.' });
 });
+
+export default router;
