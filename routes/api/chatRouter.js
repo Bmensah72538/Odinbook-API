@@ -3,8 +3,10 @@ import utils from '../../lib/passwordUtils.js';
 import Chatrooms from '../../models/chatrooms.js';
 import Messages from '../../models/messages.js';
 import User from '../../models/users.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
+const { ObjectId } = mongoose.Types;
 
 
 // GET /api/chat: Retrieves all chatrooms the authenticated user is participating in.
@@ -16,15 +18,18 @@ router.get('/', utils.authJWT, async (req, res) => {
 
     try {
         // Find all chatrooms for the user
-        const chatrooms = await Chatrooms.find({ participants: userId }).lean();
-
+        const objectId = new ObjectId(userId);
+        const searchDoc = { "participants.user": objectId };
+        const chatrooms = await Chatrooms.find(searchDoc)
+            .populate('participants.user', 'username')
+            .lean();
+        console.log(`Found chatrooms for user ${objectId}:`, chatrooms);
         // Fetch messages and populate `authorUsername` virtual field
         const chatroomsWithMessages = await Promise.all(
             chatrooms.map(async (chatroom) => {
                 const messages = await Messages.find({ chatroomId: chatroom._id })
                     .populate('author', 'username') 
                     .lean();
-
                 return {
                     ...chatroom,
                     messages,
