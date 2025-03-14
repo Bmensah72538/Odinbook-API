@@ -157,7 +157,7 @@ router.post('/', utils.authJWT, async(req, res) => {
         res.json({ error: 'Participants are required.' });
     }    
 })
-
+// /api/chatroom/${currentChatroom._id}/participant/${participantId}`)
 // Deletes one participant
 router.delete('/chatrooms/:chatroomId/participants/:userId', async (req, res) => {
     const { chatroomId, userId } = req.params;
@@ -211,7 +211,37 @@ router.delete('/chatrooms/:chatroomId', async (req, res) => {
         res.status(500).json({ error: 'Failed to delete chatroom.' });
     }
 });
+router.put('/chatrooms/:chatroomId/participants/:userId', async (req, res) => {
+    const { chatroomId, userId } = req.params;
+    const currentUserId = req.user._id;
 
+    try {
+        const chatroom = await Chatrooms.findById(chatroomId);
+
+        // Check if the current user is an admin
+        const currentUser = chatroom.participants.find(
+            (participant) => participant.userId.toString() === currentUserId.toString()
+        );
+
+        if (!currentUser || !currentUser.isAdmin) {
+            return res.status(403).json({ error: 'Only admins can update participants.' });
+        }
+
+        // Update the user's isAdmin status
+        chatroom.participants = chatroom.participants.map((participant) => {
+            if (participant.userId.toString() === userId) {
+                participant.isAdmin = !participant.isAdmin;
+            }
+            return participant;
+        });
+
+        await chatroom.save();
+
+        res.json({ message: 'Participant updated successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update participant.' });
+    }
+});
 
 
 export default router;
